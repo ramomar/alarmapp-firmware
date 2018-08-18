@@ -13,6 +13,7 @@ class AlarmSystem {
     bool getSystemIsActive();
     void triggerIfBreach();
     void triggerPanic();
+    void testSiren(int durationMs);
     void getIsBreached();
     String getSystemState();
   private:

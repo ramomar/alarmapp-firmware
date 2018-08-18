@@ -25,6 +25,7 @@ void setup() {
   Particle.subscribe("activateSystem", activateSystemEventHandler, MY_DEVICES);
   Particle.subscribe("deactivateSystem", deactivateSystemEventHandler, MY_DEVICES);
   Particle.subscribe("triggerPanic", triggerPanicEventHandler, MY_DEVICES);
+  Particle.subscribe("testSiren", testSirenEventHandler, MY_DEVICES);
 }
 
 void loop() {
@@ -74,6 +75,10 @@ void deactivateSystemEventHandler(const char *event, const char *data) {
 
 void triggerPanicEventHandler(const char *event, const char *data) {
   alarmSystem->triggerPanic();
+}
+
+void testSirenEventHandler(const char *event, const char *data) {
+  alarmSystem->testSiren(1000);
 }
 
 void parseActivateSystemEvent(String activateSystemEvent, bool *sensorsToDisable) {
