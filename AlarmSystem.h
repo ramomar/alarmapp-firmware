@@ -14,7 +14,8 @@ class AlarmSystem {
     void triggerIfBreach();
     void triggerPanic();
     void testSiren(int durationMs);
-    void getIsBreached();
+    bool getIsBreached();
+    bool getIsPanic();
     String getSystemState();
   private:
     AlarmDriver *_alarmDriver;

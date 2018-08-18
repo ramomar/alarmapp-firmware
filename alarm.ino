@@ -10,8 +10,6 @@ AlarmSystem *alarmSystem;
 
 String previousSystemState;
 
-bool isActive;
-
 int sensorCount = sizeof(sensorsPins) / sizeof(sensorsPins[0]);
 
 void setup() {
@@ -31,9 +29,7 @@ void setup() {
 void loop() {
   alarmSystem->triggerIfBreach();
 
-  isActive = alarmSystem->getSystemIsActive();
-
-  if (isActive) {
+  if (alarmSystem->getIsBreached()) {
     digitalWrite(statusPin, HIGH);
   } else {
     digitalWrite(statusPin, LOW);
@@ -45,7 +41,8 @@ void loop() {
     if (Particle.connected()) {
       Particle.publish("systemState", currentSystemState, 60, PRIVATE);
 
-      delay(5000);
+      // TODO: remove this. It is only necessary because inputs are still not grounded. (Still testing stuff)
+      delay(1500);
     }
 
     previousSystemState = currentSystemState;
@@ -64,13 +61,10 @@ void activateSystemEventHandler(const char *event, const char *data) {
   parseActivateSystemEvent(sensorsToDisableData, sensorsToDisable);
 
   alarmSystem->activate(sensorsToDisable);
-
-  isActive = true;
 }
 
 void deactivateSystemEventHandler(const char *event, const char *data) {
   alarmSystem->deactivate();
-  isActive = false;
 }
 
 void triggerPanicEventHandler(const char *event, const char *data) {

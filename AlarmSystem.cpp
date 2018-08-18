@@ -63,6 +63,14 @@ void AlarmSystem::testSiren(int durationMs) {
   _alarmDriver -> deactivateSiren();
 }
 
+bool AlarmSystem::getIsBreached() {
+  return _isBreached;
+}
+
+bool AlarmSystem::getIsPanic() {
+  return _isPanic;
+}
+
 String AlarmSystem::getSystemState() {
   bool *sensorsState = _alarmDriver->getSensorsState();
   bool sirenState = _alarmDriver->getSirenState();
