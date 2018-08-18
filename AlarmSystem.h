@@ -11,7 +11,8 @@ class AlarmSystem {
     void activate(bool *sensorsToDisable);
     void deactivate();
     bool getSystemIsActive();
-    void alertIfBreach();
+    void triggerIfBreach();
+    void triggerPanic();
     void getIsBreached();
     String getSystemState();
   private:
@@ -21,6 +22,7 @@ class AlarmSystem {
     int _sensorCount;
     bool _systemIsActive;
     bool _isBreached;
+    bool _isPanic;
     bool _checkIfBreach();
 };
 
