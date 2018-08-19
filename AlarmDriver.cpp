@@ -10,7 +10,7 @@ AlarmDriver::AlarmDriver(int *sensorsPins, int sensorCount, int sirenPin) {
   pinMode(_sirenPin, OUTPUT);
 
   for (int sensor = 0; sensor < _sensorCount; sensor += 1) {
-    pinMode(_sensorsPins[sensor], INPUT);
+    pinMode(_sensorsPins[sensor], INPUT_PULLUP);
     _sensorsState[sensor] = false;
   }
 }

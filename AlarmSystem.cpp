@@ -20,6 +20,10 @@ AlarmSystem::~AlarmSystem() {
 }
 
 void AlarmSystem::activate(bool *sensorsToDisable) {
+  if (_systemIsActive) {
+    return ;
+  }
+
   bool *sensorsState = _alarmDriver->getSensorsState();
 
   for (int sensor = 0; sensor < _sensorCount; sensor += 1) {
@@ -44,23 +48,42 @@ bool AlarmSystem::getSystemIsActive() {
   return _systemIsActive;
 }
 
-void AlarmSystem::triggerIfBreach() {
-  bool hasBreach = _checkIfBreach();
-  if (_systemIsActive && hasBreach) {
-    _isBreached = true;
-    _alarmDriver->activateSiren();
+void AlarmSystem::triggerBreach() {
+  _alarmDriver->activateSiren();
+}
+
+bool AlarmSystem::checkIfBreached() {
+  if (!_systemIsActive) {
+    return false;
   }
+
+  if (_isBreached) {
+    return true;
+  }
+
+  bool *currentState = _alarmDriver->getSensorsState();
+
+  for (int sensor = 0; sensor < _sensorCount; sensor += 1) {
+    if (!_disabledSensors[sensor] && currentState[sensor] != _sensorsStateAtActivation[sensor]) {
+      _isBreached = true;
+      return true;
+    }
+  }
+
+  return false;
 }
 
 void AlarmSystem::triggerPanic() {
   _isPanic = true;
-  _alarmDriver -> activateSiren();
+  _systemIsActive = true;
+  _isBreached = true;
+  _alarmDriver->activateSiren();
 }
 
 void AlarmSystem::testSiren(int durationMs) {
-  _alarmDriver -> activateSiren();
+  _alarmDriver->activateSiren();
   delay(durationMs);
-  _alarmDriver -> deactivateSiren();
+  _alarmDriver->deactivateSiren();
 }
 
 bool AlarmSystem::getIsBreached() {
@@ -95,16 +118,4 @@ String AlarmSystem::getSystemState() {
   state.concat(_systemIsActive ? 1 : 0);
 
   return state;
-}
-
-bool AlarmSystem::_checkIfBreach() {
-  bool *currentState = _alarmDriver->getSensorsState();
-
-  for (int sensor = 0; sensor < _sensorCount; sensor += 1) {
-    if (!_disabledSensors[sensor] && currentState[sensor] != _sensorsStateAtActivation[sensor]) {
-      return true;
-    }
-  }
-
-  return false;
 }

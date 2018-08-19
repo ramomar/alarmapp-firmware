@@ -11,7 +11,8 @@ class AlarmSystem {
     void activate(bool *sensorsToDisable);
     void deactivate();
     bool getSystemIsActive();
-    void triggerIfBreach();
+    void triggerBreach();
+    bool checkIfBreached();
     void triggerPanic();
     void testSiren(int durationMs);
     bool getIsBreached();
@@ -25,7 +26,6 @@ class AlarmSystem {
     bool _systemIsActive;
     bool _isBreached;
     bool _isPanic;
-    bool _checkIfBreach();
 };
 
 #endif
