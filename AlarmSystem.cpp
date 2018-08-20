@@ -81,9 +81,11 @@ void AlarmSystem::triggerPanic() {
 }
 
 void AlarmSystem::testSiren(int durationMs) {
-  _alarmDriver->activateSiren();
-  delay(durationMs);
-  _alarmDriver->deactivateSiren();
+  if (!_systemIsActive) {
+    _alarmDriver->activateSiren();
+    delay(durationMs);
+    _alarmDriver->deactivateSiren();
+  }
 }
 
 bool AlarmSystem::getIsBreached() {
