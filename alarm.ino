@@ -1,6 +1,8 @@
 #include "AlarmDriver.h"
 #include "AlarmSystem.h"
 
+#define MAIN_DOOR_SENSOR_NUMBER 0
+
 int sensorsPins[] = { D0, D1, D2, D3, D4, D5 };
 int deactivateSystemButtonPin = A0;
 int activateSystemButtonPin = A1;
@@ -18,8 +20,8 @@ String previousSystemState;
 
 int sensorCount = sizeof(sensorsPins) / sizeof(sensorsPins[0]);
 
-// Remeber to modify this timer if you modify the grace period buzzer routine.
-Timer gracePeriodTimer(16000, gracePeriodExpiredCallback, true);
+// Remeber to modify this timer if you modify the buzzer grace period routine.
+Timer gracePeriodTimer(16000, gracePeriodTimerExpiredCallback, true);
 
 void setup() {
   pinMode(statusPin, OUTPUT);
@@ -60,9 +62,15 @@ void loop() {
     digitalWrite(statusPin, LOW);
   }
 
-  if (!gracePeriodExpired && hasBreach && !isPanic) {
-    gracePeriodTimer.start();
-    buzzerGracePeriod();
+  if (!gracePeriodExpired && !isPanic && hasBreach) {
+    int triggeredSensor = alarmSystem->getTriggeredSensor();
+
+    if (triggeredSensor == MAIN_DOOR_SENSOR_NUMBER) {
+      gracePeriodTimer.start();
+      buzzerGracePeriod();
+    } else {
+      triggerGracePeriodExpired();
+    }
   }
 
   String currentSystemState = alarmSystem->getSystemState();
@@ -96,6 +104,7 @@ void deactivateSystemEventHandler(const char *event, const char *data) {
 
 void triggerPanicEventHandler(const char *event, const char *data) {
   alarmSystem->triggerPanic();
+  tone(buzzerPin, 2024, 1000);
 }
 
 void testSirenEventHandler(const char *event, const char *data) {
@@ -160,10 +169,8 @@ void buzzerGracePeriod() {
   }
 }
 
-void gracePeriodExpiredCallback() {
-  gracePeriodExpired = true;
-  alarmSystem->triggerBreach();
-  tone(buzzerPin, 2024, 1000);
+void gracePeriodTimerExpiredCallback() {
+  triggerGracePeriodExpired();
 }
 
 void deactivateSystemButtonInterruptCallback() {
@@ -178,6 +185,12 @@ void activateSystemButtonInterruptCallback() {
   }
 
   activateSystem(sensorsToDisable);
+}
+
+void triggerGracePeriodExpired() {
+  gracePeriodExpired = true;
+  alarmSystem->triggerBreach();
+  tone(buzzerPin, 2024, 1000);
 }
 
 void activateSystem(bool *sensorsToDisable) {

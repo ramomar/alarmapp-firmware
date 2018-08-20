@@ -6,6 +6,7 @@ AlarmSystem::AlarmSystem(AlarmDriver *alarmDriver) {
   _isBreached = false;
   _isPanic = false;
   _sensorCount = _alarmDriver->getSensorCount();
+  _triggeredSensor = -1;
   _sensorsStateAtActivation = new bool[_sensorCount];
   _disabledSensors = new bool[_sensorCount];
 
@@ -41,6 +42,7 @@ void AlarmSystem::deactivate() {
   _systemIsActive = false;
   _isBreached = false;
   _isPanic = false;
+  _triggeredSensor = -1;
   _alarmDriver->deactivateSiren();
 }
 
@@ -66,6 +68,7 @@ bool AlarmSystem::checkIfBreached() {
   for (int sensor = 0; sensor < _sensorCount; sensor += 1) {
     if (!_disabledSensors[sensor] && currentState[sensor] != _sensorsStateAtActivation[sensor]) {
       _isBreached = true;
+      _triggeredSensor = sensor;
       return true;
     }
   }
@@ -94,6 +97,10 @@ bool AlarmSystem::getIsBreached() {
 
 bool AlarmSystem::getIsPanic() {
   return _isPanic;
+}
+
+int AlarmSystem::getTriggeredSensor() {
+  return _triggeredSensor;
 }
 
 String AlarmSystem::getSystemState() {

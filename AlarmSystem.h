@@ -17,12 +17,14 @@ class AlarmSystem {
     void testSiren(int durationMs);
     bool getIsBreached();
     bool getIsPanic();
+    int getTriggeredSensor();
     String getSystemState();
   private:
     AlarmDriver *_alarmDriver;
     bool *_disabledSensors;
     bool *_sensorsStateAtActivation;
     int _sensorCount;
+    int _triggeredSensor;
     bool _systemIsActive;
     bool _isBreached;
     bool _isPanic;
