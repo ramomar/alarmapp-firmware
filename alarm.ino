@@ -1,5 +1,6 @@
 #include "AlarmDriver.h"
 #include "AlarmSystem.h"
+#include "GracePeriodTimer.h"
 
 #define MAIN_DOOR_SENSOR_NUMBER 0
 
@@ -12,6 +13,7 @@ int statusPin = D7;
 
 AlarmDriver *alarmDriver;
 AlarmSystem *alarmSystem;
+GracePeriodTimer *gracePeriodTimer;
 
 bool gracePeriodExpired;
 bool notifyWithBuzzer;
@@ -20,24 +22,17 @@ String previousSystemState;
 
 int sensorCount = sizeof(sensorsPins) / sizeof(sensorsPins[0]);
 
-// Remeber to modify this timer if you modify the buzzer grace period routine.
-Timer gracePeriodTimer(16000, gracePeriodTimerExpiredCallback, true);
-
 void setup() {
   pinMode(statusPin, OUTPUT);
-  pinMode(buzzerPin, OUTPUT);
   pinMode(deactivateSystemButtonPin, INPUT_PULLUP);
   pinMode(activateSystemButtonPin, INPUT_PULLUP);
 
-  attachInterrupt(deactivateSystemButtonPin, deactivateSystemButtonInterruptCallback, CHANGE, 0);
-  attachInterrupt(activateSystemButtonPin, activateSystemButtonInterruptCallback, CHANGE, 0);
-
   gracePeriodExpired = false;
-
   notifyWithBuzzer = true;
 
   alarmDriver = new AlarmDriver(sensorsPins, sensorCount, sirenPin);
   alarmSystem = new AlarmSystem(alarmDriver);
+  gracePeriodTimer = new GracePeriodTimer(buzzerPin);
 
   Particle.variable("systemState", previousSystemState);
 
@@ -53,6 +48,14 @@ void loop() {
     notifyWithBuzzer = false;
   }
 
+  if (digitalRead(deactivateSystemButtonPin) == LOW) {
+    deactivateSystemButton();
+  }
+
+  if (digitalRead(activateSystemButtonPin) == LOW) {
+    activateSystemButton();
+  }
+
   bool hasBreach = alarmSystem->checkIfBreached();
   bool isPanic = alarmSystem->getIsPanic();
 
@@ -62,20 +65,27 @@ void loop() {
     digitalWrite(statusPin, LOW);
   }
 
-  if (!gracePeriodExpired && !isPanic && hasBreach) {
+  if (hasBreach && !isPanic && !gracePeriodTimer->isActive() && !gracePeriodExpired) {
     int triggeredSensor = alarmSystem->getTriggeredSensor();
 
     if (triggeredSensor == MAIN_DOOR_SENSOR_NUMBER) {
-      gracePeriodTimer.start();
-      buzzerGracePeriod();
+      gracePeriodTimer->start(millis());
     } else {
       triggerGracePeriodExpired();
     }
   }
 
+  if (gracePeriodTimer->isActive()) {
+    gracePeriodTimer->tick(millis());
+  }
+
+  if (gracePeriodTimer->isFinished() && !gracePeriodExpired) {
+    triggerGracePeriodExpired();
+  }
+
   String currentSystemState = alarmSystem->getSystemState();
 
-  if (previousSystemState != currentSystemState) {
+  if (!gracePeriodExpired && previousSystemState != currentSystemState) {
     if (Particle.connected()) {
       Particle.publish("systemState", currentSystemState, 60, PRIVATE);
     }
@@ -136,48 +146,11 @@ void buzzerSaySomething() {
   }
 }
 
-// Remember to modify the grace period timer.
-// TODO: Better way of computing beeps delay.
-void buzzerGracePeriod() {
-  int phase = 0;
-
-  for (int tick = 1; tick <= 60; tick += 1) {
-    int delayMs;
-
-    switch (phase) {
-      case 0:
-        delayMs = 500; // 20 * 500 / 1000 = 10 secs
-        break;
-      case 1:
-        delayMs = 200; // 20 * 250 / 1000 = 4 secs
-        break;
-      case 2:
-        delayMs = 150; // 20 * 150 / 1000 = 1.5 secs
-        break;
-    }
-
-    if (tick % 20 == 0) {
-      phase += 1;
-    }
-
-    if (gracePeriodTimer.isActive()) {
-      tone(buzzerPin, 3817, 100);
-      delay(delayMs);
-    } else {
-      break;
-    }
-  }
-}
-
-void gracePeriodTimerExpiredCallback() {
-  triggerGracePeriodExpired();
-}
-
-void deactivateSystemButtonInterruptCallback() {
+void deactivateSystemButton() {
   deactivateSystem();
 }
 
-void activateSystemButtonInterruptCallback() {
+void activateSystemButton() {
   bool sensorsToDisable[sensorCount];
 
   for (int sensor = 0; sensor < sensorCount; sensor += 1) {
@@ -201,7 +174,7 @@ void activateSystem(bool *sensorsToDisable) {
 }
 
 void deactivateSystem() {
-  gracePeriodTimer.stop();
+  gracePeriodTimer->reset();
   gracePeriodExpired = false;
   alarmSystem->deactivate();
   notifyWithBuzzer = true;
