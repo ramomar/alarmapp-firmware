@@ -169,7 +169,7 @@ void triggerGracePeriodExpired() {
 }
 
 void activateSystem(bool *sensorsToDisable) {
-  if (alarmSystem->readyToActivate(sensorsToDisable)) {
+  if (alarmSystem->isReadyToActivate(sensorsToDisable)) {
     alarmSystem->activate(sensorsToDisable);
     buzzerSayOk();
   } else {

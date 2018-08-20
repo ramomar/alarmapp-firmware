@@ -25,7 +25,7 @@ bool AlarmSystem::activate(bool *sensorsToDisable) {
     return false;
   }
 
-  if (!readyToActivate(sensorsToDisable)) {
+  if (!isReadyToActivate(sensorsToDisable)) {
     return false;
   }
 
@@ -54,7 +54,7 @@ bool AlarmSystem::deactivate() {
   return true;
 }
 
-bool AlarmSystem::readyToActivate(bool *sensorsToDisable) {
+bool AlarmSystem::isReadyToActivate(bool *sensorsToDisable) {
   if (_isActive) {
     return false;
   }

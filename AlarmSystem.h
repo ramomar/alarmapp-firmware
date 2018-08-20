@@ -10,7 +10,7 @@ class AlarmSystem {
     ~AlarmSystem();
     bool activate(bool *sensorsToDisable);
     bool deactivate();
-    bool readyToActivate(bool *sensorsToDisable);
+    bool isReadyToActivate(bool *sensorsToDisable);
     bool isActive();
     void triggerBreach();
     bool checkIfBreached();
