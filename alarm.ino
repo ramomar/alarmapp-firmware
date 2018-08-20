@@ -4,6 +4,8 @@
 
 #define MAIN_DOOR_SENSOR_NUMBER 0
 
+SYSTEM_THREAD(ENABLED);
+
 int sensorsPins[] = { D0, D1, D2, D3, D4, D5 };
 int deactivateSystemButtonPin = A0;
 int activateSystemButtonPin = A1;
