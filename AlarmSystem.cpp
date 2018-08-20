@@ -20,30 +20,57 @@ AlarmSystem::~AlarmSystem() {
   delete[] _disabledSensors;
 }
 
-void AlarmSystem::activate(bool *sensorsToDisable) {
+bool AlarmSystem::activate(bool *sensorsToDisable) {
   if (_isActive) {
-    return ;
+    return false;
+  }
+
+  if (!readyToActivate(sensorsToDisable)) {
+    return false;
   }
 
   bool *sensorsState = _alarmDriver->getSensorsState();
 
   for (int sensor = 0; sensor < _sensorCount; sensor += 1) {
-    bool sensorIsActive = sensorsState[sensor];
-    bool sensorIsDisabled = sensorsToDisable[sensor];
+    bool isActive = sensorsState[sensor];
+    bool isDisabled = sensorsToDisable[sensor];
 
-    _sensorsStateAtActivation[sensor] = sensorIsActive;
-    _disabledSensors[sensor] = sensorIsDisabled;
+    _sensorsStateAtActivation[sensor] = isActive;
+    _disabledSensors[sensor] = isDisabled;
   }
 
   _isActive = true;
+
+  return true;
 }
 
-void AlarmSystem::deactivate() {
+bool AlarmSystem::deactivate() {
   _isActive = false;
   _hasBreach = false;
   _isPanic = false;
   _triggeredSensor = -1;
   _alarmDriver->deactivateSiren();
+
+  return true;
+}
+
+bool AlarmSystem::readyToActivate(bool *sensorsToDisable) {
+  if (_isActive) {
+    return false;
+  }
+
+  bool *currentState = _alarmDriver->getSensorsState();
+
+  for (int sensor = 0; sensor < _sensorCount; sensor += 1) {
+    bool isActive =  currentState[sensor];
+    bool isDisabled = sensorsToDisable[sensor];
+
+    if (!isDisabled && !isActive) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 bool AlarmSystem::isActive() {

@@ -18,7 +18,6 @@ AlarmSystem *alarmSystem;
 GracePeriodTimer *gracePeriodTimer;
 
 bool gracePeriodExpired;
-bool notifyWithBuzzer;
 
 String previousSystemState;
 
@@ -30,7 +29,6 @@ void setup() {
   pinMode(activateSystemButtonPin, INPUT_PULLUP);
 
   gracePeriodExpired = false;
-  notifyWithBuzzer = true;
 
   alarmDriver = new AlarmDriver(sensorsPins, sensorCount, sirenPin);
   alarmSystem = new AlarmSystem(alarmDriver);
@@ -42,14 +40,11 @@ void setup() {
   Particle.subscribe("deactivateSystem", deactivateSystemEventHandler, MY_DEVICES);
   Particle.subscribe("triggerPanic", triggerPanicEventHandler, MY_DEVICES);
   Particle.subscribe("testSiren", testSirenEventHandler, MY_DEVICES);
+
+  buzzerSayOk();
 }
 
 void loop() {
-  if (notifyWithBuzzer) {
-    buzzerSaySomething();
-    notifyWithBuzzer = false;
-  }
-
   if (digitalRead(deactivateSystemButtonPin) == LOW) {
     deactivateSystemButton();
   }
@@ -141,11 +136,16 @@ void parseActivateSystemEvent(String activateSystemEvent, bool *sensorsToDisable
   }
 }
 
-void buzzerSaySomething() {
+void buzzerSayOk() {
   for (int i = 0; i < 3; i += 1) {
     tone(buzzerPin, 3817, 100); // C4
     delay(200);
   }
+}
+
+void buzzerSayNotOk() {
+  tone(buzzerPin, 956, 500);
+  delay(500);
 }
 
 void deactivateSystemButton() {
@@ -169,9 +169,11 @@ void triggerGracePeriodExpired() {
 }
 
 void activateSystem(bool *sensorsToDisable) {
-  if (!alarmSystem->isActive()) {
+  if (alarmSystem->readyToActivate(sensorsToDisable)) {
     alarmSystem->activate(sensorsToDisable);
-    notifyWithBuzzer = true;
+    buzzerSayOk();
+  } else {
+    buzzerSayNotOk();
   }
 }
 
@@ -179,5 +181,5 @@ void deactivateSystem() {
   gracePeriodTimer->reset();
   gracePeriodExpired = false;
   alarmSystem->deactivate();
-  notifyWithBuzzer = true;
+  buzzerSayOk();
 }

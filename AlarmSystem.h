@@ -8,8 +8,9 @@ class AlarmSystem {
   public:
     AlarmSystem(AlarmDriver *alarmDriver);
     ~AlarmSystem();
-    void activate(bool *sensorsToDisable);
-    void deactivate();
+    bool activate(bool *sensorsToDisable);
+    bool deactivate();
+    bool readyToActivate(bool *sensorsToDisable);
     bool isActive();
     void triggerBreach();
     bool checkIfBreached();
