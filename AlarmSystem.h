@@ -10,13 +10,13 @@ class AlarmSystem {
     ~AlarmSystem();
     void activate(bool *sensorsToDisable);
     void deactivate();
-    bool getSystemIsActive();
+    bool isActive();
     void triggerBreach();
     bool checkIfBreached();
     void triggerPanic();
     void testSiren(int durationMs);
-    bool getIsBreached();
-    bool getIsPanic();
+    bool hasBreach();
+    bool isPanic();
     int getTriggeredSensor();
     String getSystemState();
   private:
@@ -25,8 +25,8 @@ class AlarmSystem {
     bool *_sensorsStateAtActivation;
     int _sensorCount;
     int _triggeredSensor;
-    bool _systemIsActive;
-    bool _isBreached;
+    bool _isActive;
+    bool _hasBreach;
     bool _isPanic;
 };
 

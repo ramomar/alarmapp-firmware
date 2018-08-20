@@ -59,7 +59,7 @@ void loop() {
   }
 
   bool hasBreach = alarmSystem->checkIfBreached();
-  bool isPanic = alarmSystem->getIsPanic();
+  bool isPanic = alarmSystem->isPanic();
 
   if (hasBreach) {
     digitalWrite(statusPin, HIGH);
@@ -169,7 +169,7 @@ void triggerGracePeriodExpired() {
 }
 
 void activateSystem(bool *sensorsToDisable) {
-  if (!alarmSystem->getSystemIsActive()) {
+  if (!alarmSystem->isActive()) {
     alarmSystem->activate(sensorsToDisable);
     notifyWithBuzzer = true;
   }
