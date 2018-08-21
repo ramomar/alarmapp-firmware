@@ -18,6 +18,7 @@ AlarmSystem *alarmSystem;
 GracePeriodTimer *gracePeriodTimer;
 
 bool gracePeriodExpired;
+bool breachNotified;
 
 String previousSystemState;
 
@@ -29,6 +30,7 @@ void setup() {
   pinMode(activateSystemButtonPin, INPUT_PULLUP);
 
   gracePeriodExpired = false;
+  breachNotified = false;
 
   alarmDriver = new AlarmDriver(sensorsPins, sensorCount, sirenPin);
   alarmSystem = new AlarmSystem(alarmDriver);
@@ -80,9 +82,26 @@ void loop() {
     triggerGracePeriodExpired();
   }
 
+  if ((gracePeriodExpired || isPanic) && !breachNotified) {
+      if (Particle.connected()) {
+        String message;
+
+        if (isPanic) {
+          message = String("panic");
+        } else {
+          message = String("breach");
+          message.concat('|');
+          message.concat(alarmSystem->getTriggeredSensor());
+        }
+
+        Particle.publish("alarmSystemTriggered", message, 60, PRIVATE);
+        breachNotified = true;
+      }
+  }
+
   String currentSystemState = alarmSystem->getSystemState();
 
-  if (!gracePeriodExpired && previousSystemState != currentSystemState) {
+  if (previousSystemState != currentSystemState) {
     if (Particle.connected()) {
       Particle.publish("systemState", currentSystemState, 60, PRIVATE);
     }
@@ -180,6 +199,7 @@ void activateSystem(bool *sensorsToDisable) {
 void deactivateSystem() {
   gracePeriodTimer->reset();
   gracePeriodExpired = false;
+  breachNotified = false;
   alarmSystem->deactivate();
   buzzerSayOk();
 }
