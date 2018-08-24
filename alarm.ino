@@ -24,6 +24,8 @@ String previousSystemState;
 
 int sensorCount = sizeof(sensorsPins) / sizeof(sensorsPins[0]);
 
+unsigned long previousTimeMs;
+
 void setup() {
   pinMode(statusPin, OUTPUT);
   pinMode(deactivateSystemButtonPin, INPUT_PULLUP);
@@ -32,9 +34,13 @@ void setup() {
   gracePeriodExpired = false;
   breachNotified = false;
 
+  previousSystemState = String("");
+
   alarmDriver = new AlarmDriver(sensorsPins, sensorCount, sirenPin);
   alarmSystem = new AlarmSystem(alarmDriver);
   gracePeriodTimer = new GracePeriodTimer(buzzerPin);
+
+  previousTimeMs = millis();
 
   Particle.variable("systemState", previousSystemState);
 
@@ -99,11 +105,17 @@ void loop() {
       }
   }
 
+  unsigned long currentTimeMs = millis();
+
+  // Debounce magnetic sensors.
+  bool minimumTimeBetweenEventsElapsed = (currentTimeMs - previousTimeMs) > 1000;
+
   String currentSystemState = alarmSystem->getSystemState();
 
-  if (previousSystemState != currentSystemState) {
+  if (previousSystemState != currentSystemState && minimumTimeBetweenEventsElapsed) {
     if (Particle.connected()) {
       Particle.publish("systemState", currentSystemState, 60, PRIVATE);
+      previousTimeMs = currentTimeMs;
     }
 
     previousSystemState = currentSystemState;
