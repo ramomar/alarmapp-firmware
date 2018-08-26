@@ -108,7 +108,8 @@ void loop() {
   unsigned long currentTimeMs = millis();
 
   // Debounce magnetic sensors.
-  bool minimumTimeBetweenEventsElapsed = (currentTimeMs - previousTimeMs) > 1000;
+  unsigned long deltaBetweenEvents = (currentTimeMs - previousTimeMs);
+  bool minimumTimeBetweenEventsElapsed = abs(deltaBetweenEvents) >= 1000;
 
   String currentSystemState = alarmSystem->getSystemState();
 
