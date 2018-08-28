@@ -13,7 +13,7 @@ Firmware for the Alarmapp project written for the Particle Photon.
 - Can work with or without the network (code uses own thread).
 
 ### TODO
-- Add a matrix keypad for offline activation/deactivation of the system.
+- Add logic for a matrix keypad for offline activation/deactivation of the system.
 
 ### Project organization
 
