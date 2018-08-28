@@ -28,12 +28,12 @@ Firmware for the Alarmapp project written for the Particle Photon.
 
 | Name | Description | Data |
 |------|-------------|-------|
-| activateSystem       | When this event is published the system activates. | No data. |
+| activateSystem       | When this event is published the system activates. | `1d-2e-3e` means disable area 1 but keep areas 2 and 3 enabled. |
 | deactivateSystem     | When this event is published the system deactivates. | No data. |
 | triggerPanic         | When this event is published the system enters in panic mode (siren gets instantly activated). | No data. |
 | testSiren            | When this event is published the system rings the siren for 3 seconds. | No data. |
-| alarmSystemTriggered | When the system is breached, this event is published and a push notifications webhook gets invoked. | If panic then `panic` if breach then `breach\|3` sensor 3 activated (e.g. breach through window 3). |
-| systemState          | When the system detects a state change, e.g., a windows opens, this event is published | The state of the system. E.g., `0d-1e-0d-0d\|0\|1` means first sensor is inactive (e.g. window is open) and disabled. Siren is off and system is active. |
+| alarmSystemTriggered | When the system is breached, this event is published and a push notifications webhook gets invoked. | If panic, then `panic`. If breach, then `breach\|3` means breach through area 3. |
+| systemState          | When the system detects a state change, e.g., a windows opens, this event is published | The state of the system. E.g., `0d-1e-0d-0d\|0\|1` means first area is disabled and inactive (e.g. some window from area 1 is open). Siren is off and system is active. |
 
 ### Building and flashing the firmware
 
