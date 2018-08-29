@@ -57,7 +57,3 @@ void AlarmDriver::_readSensors() {
     _sensorsState[sensor] = (digitalRead(sensorPin) == HIGH);
   }
 }
-
-void AlarmDriver::_readSiren() {
-  _sirenState = (digitalRead(_sirenPin) == HIGH);
-}

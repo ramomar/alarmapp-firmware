@@ -18,7 +18,6 @@ class AlarmDriver {
     bool *_sensorsState;
     int _sirenPin;
     bool _sirenState;
-    void _readSiren();
     void _readSensors();
 };
 
