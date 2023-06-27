@@ -1,7 +1,28 @@
+/******************************************************/
+//       THIS IS A GENERATED FILE - DO NOT EDIT       //
+/******************************************************/
+
+#include "Particle.h"
+#line 1 "/Users/gedu/Developer/alarmapp-firmware/src/alarm.ino"
 #include "AlarmDriver.h"
 #include "AlarmSystem.h"
 #include "GracePeriodTimer.h"
 
+void setup();
+void loop();
+void activateSystemEventHandler(const char *event, const char *data);
+void deactivateSystemEventHandler(const char *event, const char *data);
+void triggerPanicEventHandler(const char *event, const char *data);
+void testSirenEventHandler(const char *event, const char *data);
+void parseActivateSystemEvent(String activateSystemEvent, bool *sensorsToDisable);
+void buzzerSayOk();
+void buzzerSayNotOk();
+void deactivateSystemButton();
+void activateSystemButton();
+void triggerGracePeriodExpired();
+void activateSystem(bool *sensorsToDisable);
+void deactivateSystem();
+#line 5 "/Users/gedu/Developer/alarmapp-firmware/src/alarm.ino"
 #define MAIN_DOOR_SENSOR_NUMBER 0
 
 SYSTEM_THREAD(ENABLED);
