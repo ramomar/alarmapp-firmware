@@ -1,6 +1,6 @@
 # Alarmapp Firmware
 
-Firmware for the [Alarmapp](https://github.com/ramomar/alarmapp) project written for the Particle Photon.
+Firmware for the [Alarmapp](https://github.com/ramomar/alarmapp) project written for the Particle Photon/Argon.
 
 ## Features
 
