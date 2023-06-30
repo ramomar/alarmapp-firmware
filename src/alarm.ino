@@ -7,9 +7,9 @@
 SYSTEM_THREAD(ENABLED);
 
 int sensorsPins[] = { D0, D1, D2, D3, D4, D5 };
-int deactivateSystemButtonPin = A0;
-int activateSystemButtonPin = A1;
-int sirenPin = A2;
+int deactivateSystemButtonPin = D9;
+int activateSystemButtonPin = D10;
+int sirenPin = D6;
 int buzzerPin = A5;
 int statusPin = D7;
 
@@ -109,7 +109,7 @@ void loop() {
 
   // Debounce magnetic sensors.
   unsigned long deltaBetweenEvents = (currentTimeMs - previousTimeMs);
-  bool minimumTimeBetweenEventsElapsed = abs(deltaBetweenEvents) >= 1000;
+  bool minimumTimeBetweenEventsElapsed = deltaBetweenEvents >= 1000;
 
   String currentSystemState = alarmSystem->getSystemState();
 

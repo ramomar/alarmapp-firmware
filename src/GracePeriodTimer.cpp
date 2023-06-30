@@ -33,11 +33,11 @@ void GracePeriodTimer::tick(unsigned long currentTimeMs) {
     return;
   }
 
-  int delayMs = _computeDelayInMs();
+  unsigned long delayMs = _computeDelayInMs();
 
   unsigned long deltaBetweenTones = currentTimeMs - _previousTimeMs;
 
-  if (abs(deltaBetweenTones) >= delayMs) {
+  if (deltaBetweenTones >= delayMs) {
     tone(_buzzerPin, 3817, 100); // C4
 
     _tick += 1;
@@ -64,7 +64,7 @@ bool GracePeriodTimer::isFinished() {
 }
 
 unsigned long GracePeriodTimer::_computeDelayInMs() {
-  unsigned long delay;
+  unsigned long delay = 0;
 
   switch (_phase) {
     case 0:
